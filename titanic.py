@@ -8,15 +8,19 @@ def load_data():
     url = 'https://raw.githubusercontent.com/AfanasevAndU/titanik_train_data/main/titanic_train%20%5BtsKg9Q%5D.csv'
     return pd.read_csv(url)
 
+def filter_survived_women(df):
+    return df[(df['Sex'] == 'female') & (df['Survived'] == 1)]
+
+def group_by_class(filtered_df):
+    return filtered_df.groupby('Pclass').agg(
+        Count=('PassengerId', 'count'),
+        Fare_Range_Min=('Fare', 'min'),
+        Fare_Range_Max=('Fare', 'max')
+    ).reset_index()
+
 df = load_data()
-
-survived_women = df[(df['Sex'] == 'female') & (df['Survived'] == 1)]
-
-result = survived_women.groupby('Pclass').agg(
-    Count=('PassengerId', 'count'),
-    Fare_Range_Min=('Fare', 'min'),
-    Fare_Range_Max=('Fare', 'max')
-).reset_index()
+survived_women = filter_survived_women(df)
+result = group_by_class(survived_women)
 
 st.header("Результаты анализа")
 st.dataframe(result)
